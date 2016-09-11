@@ -1,0 +1,182 @@
+<!doctype html>
+
+<html>
+	<head>
+		<meta charset="utf8">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<script src="/assets/js/lib/vue.js" defer></script>
+		<script src="/assets/js/main.js" defer></script>
+
+		<link rel="stylesheet" href="/assets/css/lib/normalize.css">
+		<link rel="stylesheet" href="/assets/css/home.css">
+		<link rel="stylesheet" href="/assets/css/media.css">
+
+		<title>{{pageTitle}}</title>
+	</head>
+
+	<body>
+		<div id="loading" class="page" v-show="!isReady" transition="loaded">
+			<span id="longload">todo!</span>
+		</div>
+
+		<div id="content">
+			<header>
+				<a id="logo" href="#landing">Andrew Ault</a>
+
+				<nav>
+					<a href="#about">About me</a>
+					<a v-for="cat in projects" :href="'#' + $key">{{$key}}</a>
+					<a href="#contact">Contact</a>
+
+					<div class="underline"></div>
+				</nav>
+			</header>
+
+			<ul id="pages">
+				<li id="landing" class="centeredbg">
+					<canvas id="background"></canvas>
+
+					<div class="centered">
+						<div id="logo"></div>
+						
+						<h1>My name is Andrew Ault.</h1>
+						<h2 class="sub">I do programming, web &amp; graphic design.</h2>
+					</div>
+
+					<div id="controls">
+						<a href id="prevbg" @click.prevent="prevBG()"></a>
+						<a href id="pause" 	@click.prevent="pauseBG()"></a>
+						<a href id="play" 	@click.prevent="resumeBG()"></a>
+						<a href id="nextbg" @click.prevent="nextBG()"></a>
+					</div>
+				</li>
+
+				<li id="about" class="padded labeled">
+					<div class="body">
+						<p class="c">I'm a 20 year old junior Information Systems major from Myrtle Beach, South Carolina.</p>
+
+						<p>I got my start in programming over 8 years ago with a game called Half Life 2: Deathmatch. 
+						After accidentally joining a "cheat" server, a server made for the sole purpose of exploiting in-
+						game commands, I learned about scripting. I eventually moved my way up to being an administrator of 
+						the same server before moving on to a fan-made successor to the game, Garry's Mod. Through this game, 
+						I learned the lua programming language, and have been using it ever since. In the meantime, I joined 
+						an unofficial forums for my phone at the time - the LG Vu - and made multiple themes and tutorials 
+						for ActionScript. I was promoted to an administrator of the forums as well.</p>
+
+						<p>Although I've dabbled with design for almost as long, I didn't get serious with it until 5 years 
+						ago, when I transferred to the Digital Communications program at the Academy for Arts, Science, and 
+						Technology. During the 2 years I spent with this program, I learned my way around the Adobe master 
+						collection, learned the basics of art and design, and completed an internship with Native Sons: 
+						Screenprint and Embroidery.</p>
+
+						<p>After learning both programming and design, it was only natural for me to tie the two together via 
+						web development. My first experience with web design began with a website for my band I worked on 
+						during my senior year of high school, which I used for my Exhibition of Senior Mastery project. Even 
+						though I only have 3 years of experience under my belt, I am proficient in HTML, CSS, and JavaScript, 
+						and I specialize in the MEAN development stack.</p>
+
+						<p>Currently, my time is spent between continuing to develop for Garry's Mod, working with the Unity 
+						engine, developing multiple web projects, and even experimenting with some electronic engineering.</p>
+					</div>
+				</li>
+
+				<li :id="cat" class="padded labeled" v-for="(cat, projects) in projects">
+					<div class="grid">
+						<a 	:href="info.url"
+							v-for="(project, info) in projects"
+							:id="info.cat + '-' + info.project"
+							:title="info.title"
+							:style="{backgroundImage: 'url(' + info.path + 'preview.png)'}"
+							@click.prevent="viewInfo(info, $event.target)"
+							:data-index="$index">
+						</a>
+					</div>
+				</li>
+
+				<li id="contact" class="padded labeled">
+					<form method="POST" action="/contact">
+						<p id="response" :class="{visible: contact.response}">{{contact.response}}</p>
+
+						<input id="name"
+							type="text"
+							placeholder="Your name"
+							v-model="contact.name"
+							:disabled="contact.submitted">
+
+						<input id="email"
+							type="email"
+							placeholder="Your email"
+							v-model="contact.email"
+							:disabled="contact.submitted"
+							required>
+
+						<textarea id="body"
+							placeholder="Your message"
+							v-model="contact.body"
+							:disabled="contact.submitted"
+							required>
+						</textarea>
+
+						<input id="submit" 
+							type="submit" 
+							value="SUBMIT" 
+							@click.prevent="submitForm()"
+							:disabled="contact.submitted">
+
+						<p>
+							You can also see my
+							<a href="assets/resume.pdf">resume</a>
+							or email me at
+							<a href="mailto:contact@andrewault.me">contact@andrewault.me</a>
+							.
+						</p>
+					</form>
+				</li>
+			</ul>
+		</div>
+
+		<!-- moving project info template -->
+		<div id="info">
+			<div id="arrow"></div>
+
+			<div id="wrapper">
+				<div id="thumbnails">
+					<a  :href="curProject.url + '/' + ($index + 1)"
+						v-for="img in curProject.files"
+						:style="{backgroundImage: 'url(' + curProject.path + 'thumbs/' + img + ')'}"
+						@click.prevent="viewFile($index + 1)">
+					</a>
+
+					<!--
+					too hard to make it work when thumbnails go on multiple lines
+					<div class="underline" :class="{'visible': gallery.shouldShow}"></div>
+					-->
+				</div>
+
+				<h1>{{curProject.title}}</h1>
+				<p>{{curProject.desc}}</p>
+			</div>
+		</div>
+
+		<!-- preload images -->
+		<div id="preload"></div>
+
+		<!-- lightbox -->
+		<div id="lightbox" v-show="gallery.shouldShow" @click.self="hideFiles()">
+			<div id="gallery">
+				<span id="count">{{gallery.curFile}} / {{gallery.numFiles}}</span>
+				<a href id="close" @click.prevent=""></a>
+
+				<a  :href="gallery.curImage"
+					id="image">
+					<img :src="gallery.curImage">
+				</a>
+			</div>
+
+			<a href id="prev" @click.prevent="prevFile()"></a>
+			<a href id="next" @click.prevent="nextFile()"></a>
+		</div>
+	</body>
+</html>

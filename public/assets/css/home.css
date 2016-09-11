@@ -1,0 +1,521 @@
+/* variables */
+/* fonts */
+@font-face {
+  font-family: 'trade gothic';
+  font-style: italic;
+  font-weight: bold;
+  src: url(../fonts/trade-gothic-bc-obl.woff); }
+@font-face {
+  font-family: 'tiempos';
+  src: url(../fonts/tiempos-regular.woff); }
+/* the basics */
+* {
+  box-sizing: border-box; }
+
+html, body {
+  height: 100%; }
+
+h1 {
+  margin: 0;
+  font-family: "trade gothic";
+  font-weight: bold;
+  font-style: italic;
+  font-size: 56px;
+  text-align: center;
+  text-transform: uppercase; }
+
+h2 {
+  margin: 0;
+  font-family: "tiempos";
+  font-size: 20px; }
+
+p {
+  font-family: "tiempos";
+  font-size: 14px;
+  text-indent: 2.5em;
+  line-height: 1.618em; }
+
+.centeredbg:before {
+  content: ' ';
+  display: inline-block;
+  height: 100%;
+  vertical-align: middle;
+  margin-right: -0.25em; }
+
+.centered {
+  display: inline-block;
+  vertical-align: middle; }
+
+body {
+  font-size: 0; }
+
+ul:not(.def) {
+  list-style: none;
+  padding: 0;
+  margin: 0; }
+
+.underline {
+  content: '';
+  position: absolute;
+  height: 0;
+  border-bottom: 3px solid #000; }
+
+/* specific stuff */
+#loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  text-align: center;
+  line-height: 100vh;
+  /* this is bad but cheap */
+  z-index: 999;
+  background: #333;
+  font-family: "trade gothic";
+  font-size: 48px;
+  font-style: italic;
+  text-transform: uppercase;
+  color: #FFF; }
+  #loading #longload {
+    display: none; }
+  #loading:after {
+    content: "Loading..."; }
+
+#content {
+  height: 100%; }
+
+header {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 60px;
+  z-index: 997;
+  background: #fff;
+  font-family: 'trade gothic';
+  font-weight: bold;
+  font-style: italic;
+  font-size: 18px;
+  text-transform: uppercase; }
+  header #logo {
+    width: 128px;
+    left: 10px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s; }
+  header nav {
+    position: absolute;
+    display: block;
+    width: 480px;
+    right: 50%;
+    margin-right: -240px;
+    overflow: hidden;
+    transition: right 0.2s ease-out, margin-right 0.2s ease-in; }
+    header nav .underline {
+      width: 96px;
+      top: 48px;
+      left: -96px; }
+  header a {
+    position: relative;
+    display: inline-block;
+    width: 96px;
+    height: 60px;
+    float: left;
+    text-align: center;
+    line-height: 60px;
+    color: #000;
+    text-decoration: none; }
+    header a:hover, header a.active {
+      color: #666; }
+  header.sticky {
+    position: fixed;
+    top: 0; }
+    header.sticky #logo {
+      opacity: 1;
+      pointer-events: auto; }
+    header.sticky nav {
+      right: 10px;
+      margin-right: 0; }
+
+#pages {
+  height: 100%; }
+
+.page, #pages li {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 100%;
+  font-size: 16px; }
+  .page.labeled:after, #pages li.labeled:after {
+    content: attr(id);
+    position: absolute;
+    width: 200px;
+    height: 30px;
+    right: 50%;
+    margin-right: 450px;
+    padding-right: 10px;
+    top: 100px;
+    font-family: "trade gothic";
+    text-transform: uppercase;
+    font-size: 26px;
+    line-height: 30px;
+    text-align: right; }
+  .page.padded, #pages li.padded {
+    padding-top: 100px; }
+
+.grid {
+  position: relative;
+  width: 915px;
+  left: 50%;
+  margin-left: -450px;
+  text-align: left; }
+  .grid > a {
+    position: relative;
+    display: inline-block;
+    width: 290px;
+    height: 190px;
+    margin: 0 15px 15px 0;
+    vertical-align: top;
+    background-position: center center;
+    background-size: 290px 190px;
+    transition: background 0.3s, margin-bottom 0.3s; }
+    .grid > a:before, .grid > a:after {
+      position: absolute;
+      display: block;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s; }
+    .grid > a:before {
+      content: '';
+      background: rgba(0, 0, 0, 0.3); }
+    .grid > a:after {
+      content: attr(title);
+      text-align: center;
+      line-height: 190px;
+      color: #fff;
+      font-family: "trade gothic";
+      font-size: 24px;
+      text-transform: uppercase; }
+    .grid > a:hover {
+      background-size: 400px 262px; }
+      .grid > a:hover:before, .grid > a:hover:after {
+        opacity: 1; }
+
+/* pages */
+#landing {
+  height: 100%;
+  text-align: center;
+  color: #fff; }
+  #landing #background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 60px);
+    /* rats */
+    pointer-events: none;
+    background: #333;
+    image-rendering: optimizeSpeed;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: -o-crisp-edges;
+    image-rendering: pixelated;
+    -ms-interpolation-mode: nearest-neighbor; }
+  #landing .centered {
+    position: relative;
+    padding: 20px; }
+  #landing #controls {
+    position: absolute;
+    width: 96px;
+    height: 24px;
+    right: 10px;
+    bottom: 70px;
+    /* pseudo elements are fun */ }
+    #landing #controls #prevbg, #landing #controls #pause, #landing #controls #play, #landing #controls #nextbg {
+      position: relative;
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      float: left;
+      overflow: hidden; }
+      #landing #controls #prevbg:before, #landing #controls #prevbg:after, #landing #controls #pause:before, #landing #controls #pause:after, #landing #controls #play:before, #landing #controls #play:after, #landing #controls #nextbg:before, #landing #controls #nextbg:after {
+        content: '';
+        position: absolute;
+        display: block; }
+    #landing #controls #prevbg:before, #landing #controls #prevbg:after {
+      width: 0;
+      height: 0;
+      top: 4px;
+      border-top: 8px solid transparent;
+      border-right: 12px solid #999;
+      border-bottom: 8px solid transparent; }
+    #landing #controls #prevbg:before {
+      left: 3px; }
+    #landing #controls #prevbg:after {
+      right: 3px; }
+    #landing #controls #prevbg:hover:before, #landing #controls #prevbg:hover:after {
+      border-right-color: #fff; }
+    #landing #controls #pause:before, #landing #controls #pause:after {
+      width: 4px;
+      height: 16px;
+      top: 4px;
+      background: #999; }
+    #landing #controls #pause:before {
+      left: 6px; }
+    #landing #controls #pause:after {
+      right: 6px; }
+    #landing #controls #pause:hover:before, #landing #controls #pause:hover:after {
+      background-color: #fff; }
+    #landing #controls #play:before {
+      top: 4px;
+      left: 6px;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+      border-left: 12px solid #999; }
+    #landing #controls #play:after {
+      content: none; }
+    #landing #controls #play:hover:before {
+      border-left-color: #fff; }
+    #landing #controls #nextbg:before, #landing #controls #nextbg:after {
+      width: 0;
+      height: 0;
+      top: 4px;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+      border-left: 12px solid #999; }
+    #landing #controls #nextbg:before {
+      left: 3px; }
+    #landing #controls #nextbg:after {
+      right: 3px; }
+    #landing #controls #nextbg:hover:before, #landing #controls #nextbg:hover:after {
+      border-left-color: #fff; }
+
+#about {
+  padding-bottom: 100px; }
+  #about .body {
+    position: relative;
+    width: 600px;
+    left: 50%;
+    margin-left: -300px; }
+  #about p {
+    margin: 0 0 1.618em; }
+  #about .c {
+    text-indent: 0;
+    text-align: center; }
+
+#contact {
+  text-align: center; }
+  #contact form {
+    display: inline-block;
+    width: 600px;
+    padding-bottom: 100px;
+    text-align: left;
+    font-size: 16px;
+    font-family: "tiempos"; }
+    #contact form p {
+      margin: 0;
+      line-height: 30px;
+      text-indent: 0; }
+      #contact form p a {
+        text-decoration: none;
+        transition: color 0.3s; }
+    #contact form #response {
+      max-height: 0px;
+      margin: 0;
+      overflow: hidden;
+      text-align: center;
+      transition: max-height 0.3s, margin 0.3s; }
+      #contact form #response.visible {
+        max-height: 30px;
+        margin-bottom: 10px; }
+    #contact form input, #contact form textarea {
+      margin-bottom: 10px;
+      padding: 6px;
+      font-family: sans-serif;
+      font-size: 16px;
+      background: #fff;
+      border: 0; }
+    #contact form #email, #contact form #name {
+      display: inline-block;
+      width: 295px;
+      height: 30px;
+      float: left;
+      color: #000; }
+    #contact form #name {
+      margin-right: 10px; }
+    #contact form #body {
+      width: 100%;
+      height: 300px;
+      resize: vertical; }
+    #contact form #submit {
+      float: right;
+      width: 80px;
+      height: 30px;
+      padding: 0;
+      font-family: "trade gothic";
+      font-size: 16px;
+      line-height: 30px;
+      background: #fff;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s; }
+
+/* info window */
+#info {
+  position: absolute;
+  overflow: hidden;
+  height: 0;
+  transition: height 0.3s, margin-top 0.3s; }
+  #info #arrow {
+    position: absolute;
+    width: 0;
+    height: 0;
+    top: 5px;
+    margin-left: -16px;
+    border-right: 16px solid transparent;
+    border-bottom: 16px solid #f00;
+    border-left: 16px solid transparent; }
+  #info #wrapper {
+    width: 900px;
+    margin: 21px 0 20px;
+    padding: 10px 10px 20px; }
+    #info #wrapper #thumbnails {
+      position: relative;
+      margin-bottom: 20px;
+      font-size: 0;
+      text-align: center; }
+      #info #wrapper #thumbnails a {
+        position: relative;
+        display: inline-block;
+        width: 100px;
+        height: 100px;
+        margin-bottom: 10px;
+        margin-right: 11.429px;
+        background-size: contain;
+        background-position: center center;
+        background-repeat: no-repeat; }
+        #info #wrapper #thumbnails a:nth-of-type(8n), #info #wrapper #thumbnails a:last-of-type {
+          margin-right: 0; }
+        #info #wrapper #thumbnails a:before {
+          content: '';
+          position: absolute;
+          display: block;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          pointer-events: none;
+          opacity: 0;
+          background: rgba(0, 0, 0, 0.3);
+          transition: opacity 0.3s; }
+        #info #wrapper #thumbnails a:hover:before {
+          opacity: 1; }
+      #info #wrapper #thumbnails .underline {
+        width: 100px;
+        top: 102px;
+        left: calc(50% - 50px);
+        /* almost got away without using calc at all :( */
+        opacity: 0;
+        transition: opacity 0.3s; }
+        #info #wrapper #thumbnails .underline.visible {
+          opacity: 1; }
+    #info #wrapper h1 {
+      margin-bottom: 20px; }
+    #info #wrapper p {
+      margin: 0;
+      padding: 0 40px;
+      font-family: "tiempos"; }
+
+/* image preload */
+#preload {
+  position: absolute;
+  top: -9999px;
+  left: -9999px; }
+
+/* lightbox */
+#lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 120px 0;
+  z-index: 998;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.5); }
+  #lightbox #gallery {
+    position: relative;
+    display: inline-block;
+    height: 100%;
+    text-align: left;
+    font-size: 14px; }
+    #lightbox #gallery #count {
+      position: absolute;
+      line-height: 20px;
+      top: -20px; }
+    #lightbox #gallery #close {
+      float: right; }
+    #lightbox #gallery #image {
+      position: relative;
+      display: inline-block;
+      padding: 6px;
+      height: 100%;
+      background: #fff; }
+      #lightbox #gallery #image img {
+        height: 100%; }
+  #lightbox #prev, #lightbox #next {
+    position: absolute;
+    display: block;
+    top: 50%;
+    width: 64px;
+    height: 64px;
+    margin-top: -24px; }
+    #lightbox #prev:before, #lightbox #next:before {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      top: 24px;
+      border: 0 solid #fff;
+      border-width: 3px 3px 0 0; }
+  #lightbox #prev {
+    left: 0; }
+    #lightbox #prev:before {
+      transform: rotate(-135deg);
+      left: 26px; }
+  #lightbox #next {
+    right: 0; }
+    #lightbox #next:before {
+      transform: rotate(45deg);
+      right: 26px; }
+
+/* transitions */
+.loaded-transition {
+  transition: opacity 1s ease-in-out 0.5s; }
+
+.loaded-enter {
+  opacity: 1; }
+
+.loaded-leave {
+  opacity: 0;
+  color: #B96 !important; }
+  .loaded-leave:after {
+    content: "Loaded!" !important; }
+
+.notransition {
+  transition: none !important; }
+
+/* theme coloring stuff */
+body, header a, #landing, #wrapper {
+  transition: color 0.3s; }
+
+body, #landing #background, #wrapper {
+  transition: background-color 0.3s; }
+
+.underline {
+  transition: border-color 0.3s; }
+
+/*# sourceMappingURL=home.css.map */

@@ -1,0 +1,89 @@
+/* this file's a bit of a mess but *shrug emoji* */
+
+/* specifics */
+@media (min-width: 481px) and (max-width: 768px) {
+	header.sticky nav {
+		right: 50%;
+		margin-right: -240px;
+	}
+
+	#about .body {
+		width: 460px;
+		margin-left: -230px;
+	}
+
+	#contact form { width: 460px; }
+	#contact form #name, #contact form #email { width:225px; }
+}
+
+/* general stuff */
+@media (max-width: 480px) {
+	p { font-size: 11px; }
+
+	header nav {
+		width: 100%;
+		right: 0 !important;
+		margin-right: 0 !important;
+
+		font-size: 14px;
+	}
+
+	header nav a, header nav .underline { width: 20%; }
+
+	#landing { min-width: 400px; }
+
+	#about .body {
+		width: 280px;
+		margin-left: -140px;
+	}
+
+	#contact form { width: 280px; }
+	#contact form #name, #contact form #email { width: 100%; }
+}
+
+@media (max-width: 768px) {
+	h1 { font-size: 40px; }
+	h2 { font-size: 14px; }
+
+	header nav { transition: none !important; }
+	header #logo { display: none; }
+}
+
+/* page labels */
+@media (max-width: 1200px) {
+	.page.labeled:after, #pages li.labeled:after {
+		top: 70px;
+		margin-right: -105px;
+
+		text-align: center;
+	}
+}
+
+/* grid widths (barf) */
+@media (max-width: 600px) {
+	.grid {
+		width: 315px;
+		margin-left:-150px;
+	}
+
+	#info #wrapper { width: 300px; }
+	#info #wrapper #thumbnails a:nth-of-type(8n) { margin-right: inherit; }
+	#info #wrapper #thumbnails a:nth-of-type(2n) { margin-right: 0; }
+
+	#info #wrapper p {
+		padding: 0 10px;
+		font-size: 12px;
+	}
+
+}
+
+@media (min-width: 601px) and (max-width: 900px) {
+	.grid {
+		width: 615px;
+		margin-left: -300px;
+	}
+
+	#info #wrapper { width: 600px; }
+	#info #wrapper #thumbnails a:nth-of-type(8n) { margin-right: inherit; }
+	#info #wrapper #thumbnails a:nth-of-type(5n) { margin-right: 0; }
+}
