@@ -246,7 +246,7 @@ let background = {
 		}
 
 		//woops I forgot to make it async
-		req.open('GET', '/assets/js/backgrounds/' + num + '.js', true);
+		req.open('GET', '/assets/js5/backgrounds/' + num + '.js', true);
 		req.send();
 	}
 }
