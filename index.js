@@ -60,6 +60,9 @@ let scrapeFiles = function() {
 //static files
 app.use(express.static(__dirname + '/public', {index: false}));
 
+//babel polyfill
+app.use('/babel-polyfill', express.static(__dirname + '/node_modules/babel-polyfill/'));
+
 //json for stuff
 app.get('/info', function(req, res) {
 	res.json(scrapeFiles());
