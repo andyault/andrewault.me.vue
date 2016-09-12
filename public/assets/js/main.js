@@ -385,7 +385,7 @@ let app = new Vue({
 			background.setBG((background.curBackground + 1) % background.numBackgrounds);
 		},
 		
-		viewInfo(project, elem, forceHide) {
+		viewInfo(project, elem, force) {
 			//elements
 			let info 		= document.getElementById('info');
 			let wrapper 	= document.getElementById('wrapper');
@@ -429,7 +429,7 @@ let app = new Vue({
 			}
 
 			//if it's the same project, minimize
-			if(forceHide || (project == this.curProject && parseFloat(info.style.height) != 0)) {
+			if(force === false || (force !== true && (project == this.curProject && parseFloat(info.style.height) != 0))) {
 				firstInRow.style['margin-bottom'] = null;
 				info.style.height = 0;
 			} else {
@@ -805,11 +805,8 @@ let app = new Vue({
 
 		hooks.onResize = function() {
 			//don't try to do all that, just hide the info panel
-			if((parseFloat(info.style.height) || 0) != 0) {
-				console.log(app.curProject.cat + '-' + app.curProject.project);
-				console.log(document.getElementById(app.curProject.cat + '-' + app.curProject.project));
+			if((parseFloat(info.style.height) || 0) != 0)
 				app.viewInfo(app.curProject, document.getElementById(app.curProject.cat + '-' + app.curProject.project), true);
-			}
 
 			if(app.gallery.shouldShow)
 				app.viewFile(app.gallery.curFile);
