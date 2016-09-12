@@ -51,6 +51,21 @@
 
 	#contact form { width: 280px; }
 	#contact form #name, #contact form #email { width: 100%; }
+
+	#lightbox:before {
+		content: ' ';
+		display: inline-block;
+		height: 100%;
+		vertical-align: middle;
+		margin-right: -0.25em;
+	}
+
+	#lightbox #gallery { vertical-align: middle; }
+
+	#lightbox #gallery, #lightbox #image, #lightbox #image img {
+		height: auto;
+		width: 100%;
+	}
 }
 
 @media (max-width: 768px) {
