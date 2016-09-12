@@ -6,6 +6,8 @@ let hooks = {};
 
 //util stuff
 let util = {
+	titleElem: document.getElementById('title'),
+
 	//used a lot
 	getScroll() {
 		return (document.body.scrollTop || document.documentElement.scrollTop);
@@ -75,7 +77,7 @@ let util = {
 			}
 		}
 
-		app.pageTitle = title;
+		this.titleElem.innerText = title;
 	},
 
 	getPath() {
@@ -350,7 +352,6 @@ let app = new Vue({
 
 	data: {
 		isReady: 		false,
-		pageTitle: 		"Andrew Ault",
 		showInfo: 		false,
 		curProject: 	false,
 		projects: 		{},
@@ -745,8 +746,8 @@ let app = new Vue({
 		});
 
 		//init background
-		background.setBG(Math.floor(Math.random() * background.numBackgrounds), function() {
-		//background.setBG(0, function() {
+		//background.setBG(Math.floor(Math.random() * background.numBackgrounds), function() {
+		background.setBG(3, function() {
 			app.isReady = true;
 		});
 	}
