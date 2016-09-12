@@ -184,13 +184,13 @@ let background = {
 					color: ${BG.col.fg};
 				}
 
-				#landing #background {
-					background: ${BG.col.bg.str};
-				}
-
-				#landing .centered {
+				#landing #splash {
 					background: ${BG.col.fg};
 					color: ${BG.col.bg.str};
+				}
+
+				#landing #background {
+					background: ${BG.col.bg.str};
 				}
 
 				#contact #response {

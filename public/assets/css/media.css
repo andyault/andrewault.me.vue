@@ -7,6 +7,13 @@
 		margin-right: -240px;
 	}
 
+	#landing #splash {
+		width: 448px;
+		height: 112px;
+		margin-left: -224px;
+		margin-top: -56px;
+	}
+
 	#about .body {
 		width: 460px;
 		margin-left: -230px;
@@ -30,7 +37,12 @@
 
 	header nav a, header nav .underline { width: 20%; }
 
-	#landing { min-width: 400px; }
+	#landing #splash {
+		width: 320px;
+		height: 160px;
+		margin-left: -160px;
+		margin-top: -80px;
+	}
 
 	#about .body {
 		width: 280px;
@@ -47,6 +59,8 @@
 
 	header nav { transition: none !important; }
 	header #logo { display: none; }
+
+	.grid > a:before, .grid > a:after { opacity: 1; }
 }
 
 /* page labels */
