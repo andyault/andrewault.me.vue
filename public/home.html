@@ -1,8 +1,8 @@
 <!doctype html>
 
-<html>
+<html lang="en">
 	<head>
-		<meta charset="utf8">
+		<meta charset="utf-8">
 
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -24,7 +24,7 @@
 
 		<div id="content">
 			<header>
-				<a id="logo" href="#landing">Andrew Ault</a>
+				<a class="logo" href="#landing">Andrew Ault</a>
 
 				<nav>
 					<a href="#about">About me</a>
@@ -40,17 +40,17 @@
 					<canvas id="background"></canvas>
 
 					<div id="splash">
-						<div id="logo"></div>
+						<div class="logo"></div>
 						
 						<h1>My name is Andrew Ault.</h1>
 						<h2 class="sub">I do programming, web &amp; graphic design.</h2>
 					</div>
 
 					<div id="controls">
-						<a href id="prevbg" @click.prevent="prevBG()"></a>
-						<a href id="pause" 	@click.prevent="pauseBG()"></a>
-						<a href id="play" 	@click.prevent="resumeBG()"></a>
-						<a href id="nextbg" @click.prevent="nextBG()"></a>
+						<a id="prevbg" @click.prevent="prevBG()"></a>
+						<a id="pause" 	@click.prevent="pauseBG()"></a>
+						<a id="play" 	@click.prevent="resumeBG()"></a>
+						<a id="nextbg" @click.prevent="nextBG()"></a>
 					</div>
 				</li>
 
@@ -168,7 +168,7 @@
 		<div id="lightbox" v-show="gallery.shouldShow" @click.self="hideFiles()">
 			<div id="gallery">
 				<span id="count">{{gallery.curFile}} / {{gallery.numFiles}}</span>
-				<a href id="close" @click.prevent=""></a>
+				<a id="close" @click.prevent=""></a>
 
 				<a  :href="gallery.curImage"
 					id="image">
@@ -176,8 +176,8 @@
 				</a>
 			</div>
 
-			<a href id="prev" @click.prevent="prevFile()"></a>
-			<a href id="next" @click.prevent="nextFile()"></a>
+			<a id="prev" @click.prevent="prevFile()"></a>
+			<a id="next" @click.prevent="nextFile()"></a>
 		</div>
 	</body>
 </html>

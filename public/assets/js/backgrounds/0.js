@@ -20,7 +20,7 @@ let life = {
 }
 
 BG.init = function(canvas) {
-	BG.onResize(canvas);
+	this.onResize(canvas);
 
 	let cw = Math.ceil(canvas.width / life.cellSize);
 	let ch = Math.ceil(canvas.height / life.cellSize);

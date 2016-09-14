@@ -25,7 +25,7 @@ let ant = {
 }
 
 BG.init = function(canvas) {
-	BG.onResize(canvas);
+	this.onResize(canvas);
 
 	let cw = Math.ceil(canvas.width / ant.cellSize);
 	let ch = Math.ceil(canvas.height / ant.cellSize);

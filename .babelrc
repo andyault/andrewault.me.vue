@@ -1,6 +1,6 @@
 {
 	"presets": ["es2015"],
 	"ignore": [ "public/assets/js/lib" ],
-	"minified": true,
+	"minified": false,
 	"comments": false
 }

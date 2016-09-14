@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "start": "node index.js",
-    "build": "babel public/assets/js -d public/assets/js5 --no-comments"
+    "build": "babel public/assets/js -d public/assets/js5",
+    "buildmin": "babel public/assets/js -d public/assets/js5 --no-comments"
   },
   "dependencies": {
     "express": "^4.13.3",

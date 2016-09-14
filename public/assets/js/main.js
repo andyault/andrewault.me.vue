@@ -85,6 +85,23 @@ let util = {
 			return window.location.pathname;
 		else
 			return window.location.hash;
+	},
+
+	getContext(canvas, type = '2d') {
+		if(!canvas.contexts) canvas.contexts = {};
+
+		let context = canvas.contexts[type];
+
+		if(!context) {
+			context = canvas.getContext(type);
+
+			if(type == 'webgl' && !context)
+				context = canvas.getContext('experimental-webgl');
+
+			canvas.contexts[type] = context;
+		}
+
+		return context;
 	}
 }
 
@@ -95,6 +112,7 @@ let background = {
 	numBackgrounds: 3,
 	curBackground: 	-1,
 	oldBackground: 	-1,
+	dependencies: 	{},
 
 	//default to black on white
 	BG: {
@@ -111,11 +129,7 @@ let background = {
 
 	draw() {
 		if(util.getScroll() < background.canvas.offsetHeight) {
-			let type = background.BG.context || '2d';
-			let context = background.canvas.getContext(type);
-
-			if(type == 'webgl' && !context)
-				context = background.canvas.getContext('experimental-webgl');
+			let context = util.getContext(background.canvas, background.BG.context);
 
 			if(context)
 				background.BG.draw(context);
@@ -227,6 +241,10 @@ let background = {
 				}
 			`;
 
+			//done with BG
+			background.BG = BG;
+			BG = null;
+
 			//put styles on the style element
 			//how supported is this?
 			background.style.textContent = background.css;
@@ -234,21 +252,56 @@ let background = {
 			document.getElementsByTagName('head')[0].appendChild(background.style);
 
 			//init
-			BG.init(background.canvas);
+			let dependencies = [];
 
-			//start drawing
-			background.draw();
+			//loading dependencies
+			if(background.BG.dependencies && background.BG.dependencies.length) {
+				for(let i = 0; i < background.BG.dependencies.length; i++) {
+					let src = background.BG.dependencies[i];
 
-			//delete BG
-			background.BG = BG;
-			BG = null;
+					dependencies[i] = new Promise(function(resolve, reject) {
+						let req = new XMLHttpRequest();
 
-			//done :)
-			if(cb) cb();
+						req.onload = function(e) {
+							//not that bad now
+							let script = document.createElement('script');
+							script.text = req.response;
+
+							document.body.appendChild(script);
+
+							//only load once, conflicts aren't possible
+							background.dependencies[src] = true;
+
+							resolve();
+						}
+
+						req.open('GET', '/assets/js/lib/' + src, true);
+
+						//if we have a previous file, don't load this one until that one's loaded
+						if(dependencies[i - 1])
+							dependencies[i - 1].then(function() {
+								req.send();
+							});
+						else
+							req.send();
+					});
+				}
+			}
+
+			Promise.all(dependencies).then(function() {
+				//all files loaded
+				background.BG.init(background.canvas, util.getContext(background.canvas, background.BG.context));
+
+				//start drawing
+				background.draw();
+
+				//done :)
+				if(cb) cb();
+			});
 		}
 
 		//woops I forgot to make it async
-		req.open('GET', '/assets/js5/backgrounds/' + num + '.js', true);
+		req.open('GET', '/assets/js/backgrounds/' + num + '.js', true);
 		req.send();
 	}
 }
@@ -528,7 +581,7 @@ let app = new Vue({
 			this.gallery.shouldShow = false;
 		},
 
-		prevFile() {
+		prevFile(dontChange) {
 			if(--this.gallery.curFile <= 0)
 				this.gallery.curFile = this.gallery.numFiles;
 
@@ -670,7 +723,7 @@ let app = new Vue({
 
 		//navigation link hijacking and underline movement
 		{
-			let logo = document.getElementById('logo');
+			let logo = document.querySelector('header .logo');
 
 			logo.targetX = -96;
 
@@ -746,8 +799,8 @@ let app = new Vue({
 		});
 
 		//init background
-		//background.setBG(Math.floor(Math.random() * background.numBackgrounds), function() {
-		background.setBG(3, function() {
+		background.setBG(Math.floor(Math.random() * background.numBackgrounds), function() {
+		//background.setBG(3, function() {
 			app.isReady = true;
 		});
 	}

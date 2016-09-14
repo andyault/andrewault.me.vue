@@ -35,6 +35,9 @@ p {
   text-indent: 2.5em;
   line-height: 1.618em; }
 
+a {
+  cursor: pointer; }
+
 .centeredbg:before {
   content: ' ';
   display: inline-block;
@@ -96,7 +99,7 @@ header {
   font-style: italic;
   font-size: 18px;
   text-transform: uppercase; }
-  header #logo {
+  header .logo {
     width: 128px;
     left: 10px;
     opacity: 0;
@@ -129,7 +132,7 @@ header {
   header.sticky {
     position: fixed;
     top: 0; }
-    header.sticky #logo {
+    header.sticky .logo {
       opacity: 1;
       pointer-events: auto; }
     header.sticky nav {
