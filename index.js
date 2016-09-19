@@ -132,7 +132,10 @@ app.get('/:cat?/:project?/:file?', function(req, res, next) {
 				if(!project) return next();
 
 				//gotta do -1 cause stupid pretty file indexes
-				if(req.params.file && !project.f[parseInt(req.params.file) - 1]) return next();
+				if(req.params.file) {
+					if(!project.f || !project.f[parseInt(req.params.file) - 1])
+						return next();
+				}
 			}
 		}
 	}
