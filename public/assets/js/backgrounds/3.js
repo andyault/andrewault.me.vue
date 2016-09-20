@@ -1,213 +1,85 @@
-//webgl mode7 scrolling
-//yeah I used a tutorial, call a cop
+//pseudo 3d mode7
 
-BG = {
-	col: {
-		fg: 	'#333',
-		acc: 	'#FFB8F1',
-		bg: {
-			hue: 0,
-			sat: 0,
-			val: 97
-		}
-	},
-
-	context: 	'webgl',
-	dependencies: [
-		'sylvester.js',
-		'glUtils.js'
-	] 	
+BG.col = {
+	fg: 	'#333',
+	acc: 	'#FFB8F1',
+	bg: {
+		hue: 0,
+		sat: 0,
+		val: 97
+	}
 }
 
-//webgl psuedo-global
+//weird pseudo global
 let scene = {
-	buffers: 	{},
-	vertices: 	{},
-	colors: 	{},
-	shaders: 	{},
-	shaderSrc: 	{},
-	mvMatrix: 	null,
+	textures: 	[
+		'm7_map.png'
+	],
+	images: 	[],
 
-	init(gl) {
-		//init buffers and shaders
-		let err = 
-			this.initBuffers(gl) ||
-			this.initShaders(gl);
+	numZSegments: 16
+}
 
-		if(err)
-			return console.log('error: \n ', err.replace('\n', '\n  '));
+BG.init = function(canvas) {
+	this.onResize(canvas);
 
-		gl.clearColor(0.0, 0.0, 0.0, 1.0); 	//set clear color
-		gl.clearDepth(1.0);
-		gl.enable(gl.DEPTH_TEST); 			//enable depth testing
-		gl.depthFunc(gl.LEQUAL); 			//near to far
-	},
+	this.initTextures();
+}
 
-	initBuffers(gl) {
-		this.buffers.square = gl.createBuffer();
+BG.initTextures = function() {
+	for(let i = 0; i < scene.textures.length; i++) {
+		scene.images[i] = {}
+		let img = scene.images[i].img = new Image();
 
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.square);
+		img.src = 'assets/img/' + scene.textures[i];
 
-		this.vertices.square = [
-			 1.0,  1.0,  0.0,
-			-1.0,  1.0,  0.0,
-			 1.0, -1.0,  0.0,
-			-1.0, -1.0,  0.0
-		];
-
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.vertices.square), gl.STATIC_DRAW);
-
-		//colors are separate?
-		this.buffers.squareColors = gl.createBuffer();
-
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.squareColors);
-
-		this.colors.square = [
-			1.0, 1.0, 1.0, 1.0,
-			1.0, 0.0, 0.0, 1.0,
-			0.0, 1.0, 0.0, 1.0,
-			0.0, 0.0, 1.0, 1.0
-		];
-
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.colors.square), gl.STATIC_DRAW);
-	},
-
-	initShaders(gl) {
-		//compile shaders
-		for(let type of ['vertex', 'fragment']) {
-			//hacky 
-			let glType = gl[type.toUpperCase() + '_SHADER'];
-
-			if(!glType) continue;
-
-			//declare shader
-			let shader = this.shaders[type] = gl.createShader(glType);
-			gl.shaderSource(shader, this.shaderSrc[type]);
-			gl.compileShader(shader);
-
-			//make sure it compiled
-			if(!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-				let err = gl.getShaderInfoLog(shader);
-
-				gl.deleteShader(shader);
-
-				return type + ': \n  ' + err.replace('\n', '\n  ');
-			}
+		img.onload = function() {
+			scene.images[i].w = img.width;
+			scene.images[i].h = img.height;
 		}
-
-		//weird
-		this.shaderProgram = gl.createProgram();
-
-		gl.attachShader(this.shaderProgram, this.shaders.vertex);
-		gl.attachShader(this.shaderProgram, this.shaders.fragment);
-
-		gl.linkProgram(this.shaderProgram);
-
-		//make sure it linked
-		if(!gl.getProgramParameter(this.shaderProgram, gl.LINK_STATUS))
-			return 'unable to link shader program';
-
-		gl.useProgram(this.shaderProgram);
-
-		this.vertexPositionAttribute = gl.getAttribLocation(this.shaderProgram, 'aVertexPosition');
-		gl.enableVertexAttribArray(this.vertexPositionAttribute);
-
-		this.vertexColorAttribute = gl.getAttribLocation(this.shaderProgram, 'aVertexColor');
-		gl.enableVertexAttribArray(this.vertexColorAttribute);
-	},
-
-	draw(gl) {
-		let w = gl.canvas.width;
-		let h = gl.canvas.height;
-
-		//clear
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-		//set perspective
-		this.pMatrix = makePerspective(45, w / h, 0.1, 100.0);
-
-		//reset our main matrix
-		this.mvMatrix = Matrix.I(4);
-
-		//fun stuff
-		this.mvMatrix = this.mvMatrix.x( 	//mult
-			Matrix.Translation( 			//by a matrix
-				$V( 						//???
-					[-0.0, 0.0, -6.0] 		//translation matrix
-				)
-			).ensure4x4() 					//???
-		);
-
-		//send our vertices to the shader
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.square);
-		gl.vertexAttribPointer(this.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-
-		//and our colors
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.squareColors);
-		gl.vertexAttribPointer(this.vertexColorAttribute, 4, gl.FLOAT, false, 0, 0);
-
-		//set uniforms
-		gl.uniformMatrix4fv(
-			gl.getUniformLocation(
-				this.shaderProgram,
-				'uPMatrix'
-			),
-			false,
-			new Float32Array(this.pMatrix.flatten())
-		);
-
-		gl.uniformMatrix4fv(
-			gl.getUniformLocation(
-				this.shaderProgram,
-				'uMVMatrix'
-			),
-			false,
-			new Float32Array(this.mvMatrix.flatten())
-		);
-
-		//here we go :)
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 	}
 }
 
-scene.shaderSrc.fragment = `
-	varying lowp vec4 vColor;
-
-	void main(void) {
-		gl_FragColor = vColor;
-	}
-`;
-
-scene.shaderSrc.vertex = `
-	attribute vec3 aVertexPosition;
-	attribute vec4 aVertexColor;
-
-	uniform mat4 uMVMatrix;
-	uniform mat4 uPMatrix;
-
-	varying lowp vec4 vColor;
-
-	void main(void) {
- 		gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
- 		vColor = aVertexColor;
-	}
-`;
-
-BG.init = function(canvas, context) {
-	this.onResize(canvas, context);
-
-	//webgl init
-	scene.init(context);
+BG.onResize = function(canvas) {
+	canvas.width 	= canvas.offsetWidth;
+	canvas.height 	= canvas.offsetHeight;
 }
 
-BG.onResize = function(canvas, context) {
-	canvas.width 	= canvas.offsetWidth / 4;
-	canvas.height 	= canvas.offsetHeight / 4;
-
-	if(context)
-		context.viewport(0, 0, canvas.width, canvas.height);
+BG.think = function(w, h) {
 }
 
-BG.draw = function(gl) {
-	scene.draw(gl);
+BG.draw = function(ctx) {
+	//round our grid size up by 8
+	let w = ctx.canvas.width;
+	let h = ctx.canvas.height;
+
+	let w2 = Math.ceil(w / 2);
+	let h2 = Math.ceil(h / 2);
+
+	let rw = w;
+
+	let img = scene.images[0];
+
+	for(let i = 0; i < h2; i++) {
+		let slice 	= (1 / h2);
+		let frac 	= i * slice;
+
+		//slice
+		let sx = 0;
+		let sy = frac * img.h / 2;
+
+		let sw = img.w;
+		let sh = 1;
+
+		//drawn
+		let dx = w / 2 - rw / 2;
+		let dy = h2 + i;
+
+		let dw = rw;
+		let dh = 1;
+
+		ctx.drawImage(img.img, sx, sy, sw, sh, dx, dy, dw, dh);
+
+		rw += ((h2 - i) / h2) * 25;
+	}
 }

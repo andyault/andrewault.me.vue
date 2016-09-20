@@ -259,32 +259,35 @@ let background = {
 				for(let i = 0; i < background.BG.dependencies.length; i++) {
 					let src = background.BG.dependencies[i];
 
-					dependencies[i] = new Promise(function(resolve, reject) {
-						let req = new XMLHttpRequest();
+					//only load it if we haven't yet
+					if(!background.dependencies[src]) {
+						dependencies[i] = new Promise(function(resolve, reject) {
+							let req = new XMLHttpRequest();
 
-						req.onload = function(e) {
-							//not that bad now
-							let script = document.createElement('script');
-							script.text = req.response;
+							req.onload = function(e) {
+								//not that bad now
+								let script = document.createElement('script');
+								script.text = req.response;
 
-							document.body.appendChild(script);
+								document.body.appendChild(script);
 
-							//only load once, conflicts aren't possible
-							background.dependencies[src] = true;
+								//only load once, conflicts aren't possible
+								background.dependencies[src] = true;
 
-							resolve();
-						}
+								resolve();
+							}
 
-						req.open('GET', '/assets/js/lib/' + src, true);
+							req.open('GET', '/assets/js/lib/' + src, true);
 
-						//if we have a previous file, don't load this one until that one's loaded
-						if(dependencies[i - 1])
-							dependencies[i - 1].then(function() {
+							//if we have a previous file, don't load this one until that one's loaded
+							if(dependencies[i - 1])
+								dependencies[i - 1].then(function() {
+									req.send();
+								});
+							else
 								req.send();
-							});
-						else
-							req.send();
-					});
+						});
+					}
 				}
 			}
 
@@ -301,7 +304,7 @@ let background = {
 		}
 
 		//woops I forgot to make it async
-		req.open('GET', '/assets/js/backgrounds/' + num + '.js', true);
+		req.open('GET', '/assets/js5/backgrounds/' + num + '.js', true);
 		req.send();
 	}
 }
@@ -799,8 +802,8 @@ let app = new Vue({
 		});
 
 		//init background
-		background.setBG(Math.floor(Math.random() * background.numBackgrounds), function() {
-		//background.setBG(3, function() {
+		//background.setBG(Math.floor(Math.random() * background.numBackgrounds), function() {
+		background.setBG(3, function() {
 			app.isReady = true;
 		});
 	}
@@ -858,12 +861,9 @@ let app = new Vue({
 		let image 	= document.getElementById('image');
 
 		hooks.onResize = function() {
-			//don't try to do all that, just hide the info panel
+			//try to do all that again
 			if((parseFloat(info.style.height) || 0) != 0)
 				app.viewInfo(app.curProject, document.getElementById(app.curProject.cat + '-' + app.curProject.project), true);
-
-			if(app.gallery.shouldShow)
-				app.viewFile(app.gallery.curFile);
 
 			//wtf is this fix
 			image.style.display = 'none';
@@ -877,7 +877,7 @@ let app = new Vue({
 			let navUnderline 	= document.querySelector('nav .underline');
 			let active 			= document.querySelector('header a.active');
 
-			navUnderline.style.left = (active ? active.offsetLeft : 0) + 'px';
+			navUnderline.style.left = (active ? active.offsetLeft : -96) + 'px';
 
 			//resize canvas 
 			background.BG.onResize(background.canvas);
