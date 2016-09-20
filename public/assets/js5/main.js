@@ -132,8 +132,8 @@ scrollY=scrollY//top of page
 if(parts[3])Vue.nextTick(function(){app.viewFile(parseInt(parts[3]))})}}//true to skip the smoothing and true to ignore path changing
 smoothScroll.to(scrollY,true,true);//call setPath just to update the title
 util.setPath(path)});//init background
-//background.setBG(Math.floor(Math.random() * background.numBackgrounds), function() {
-background.setBG(3,function(){app.isReady=true})};//called when we have our info
+background.setBG(Math.floor(Math.random()*background.numBackgrounds),function(){//background.setBG(3, function() {
+app.isReady=true})};//called when we have our info
 hooks.onData=function(res){//unminify our response
 app.projects={};//we es6 boys!!
 var _iteratorNormalCompletion3=true;var _didIteratorError3=false;var _iteratorError3=undefined;try{for(var _iterator3=Object.keys(res)[Symbol.iterator](),_step3;!(_iteratorNormalCompletion3=(_step3=_iterator3.next()).done);_iteratorNormalCompletion3=true){var cat=_step3.value;var projects=res[cat];app.projects[cat]={};var _iteratorNormalCompletion4=true;var _didIteratorError4=false;var _iteratorError4=undefined;try{for(var _iterator4=Object.keys(projects)[Symbol.iterator](),_step4;!(_iteratorNormalCompletion4=(_step4=_iterator4.next()).done);_iteratorNormalCompletion4=true){var project=_step4.value;var info=projects[project];app.projects[cat][project]={//unminify
