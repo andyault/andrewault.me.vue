@@ -1,5 +1,5 @@
 /* this file's a bit of a mess but *shrug emoji* */
-/* #splash { display: none; } */
+#splash { display: none; }
 
 /* specifics */
 @media (min-width: 481px) and (max-width: 768px) {
