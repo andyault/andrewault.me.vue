@@ -74,7 +74,7 @@
 	h2 { font-size: 14px; }
 
 	header nav { transition: none !important; }
-	header #logo { display: none; }
+	header .logo { display: none; }
 
 	.grid > a:before, .grid > a:after { opacity: 1; }
 }
