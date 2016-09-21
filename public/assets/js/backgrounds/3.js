@@ -56,14 +56,16 @@ BG.draw = function(ctx) {
 	let w2 = Math.ceil(w / 2);
 	let h2 = Math.ceil(h / 2);
 
-	let rw = w;
-
 	let img = scene.images[0];
+
+	//ctx.fillStyle = '#aaa';
+	//ctx.fillRect(0, h2, w, h2);
 
 	for(let i = 0; i < h2; i++) {
 		let slice 	= (1 / h2);
 		let frac 	= i * slice;
 
+		/*
 		//slice
 		let sx = 0;
 		let sy = frac * img.h / 2;
@@ -78,8 +80,18 @@ BG.draw = function(ctx) {
 		let dw = rw;
 		let dh = 1;
 
-		ctx.drawImage(img.img, sx, sy, sw, sh, dx, dy, dw, dh);
+		ctx.drawImage(img.img, sx, sy, sw, sh, dx, dy, dw, dh); */
 
-		rw += ((h2 - i) / h2) * 25;
+		let z = Math.pow(2, frac * 10);
+		let zfrac = z / Math.pow(2, 10);
+
+		let rw = w + w2 * zfrac;
+
+		//ctx.fillStyle = (Math.floor(zfrac * 10) % 2 == 0) ? '#fff' : '#ccc';
+		//ctx.fillRect(0, h - i, w, 1);
+		ctx.drawImage(img.img, 0, frac * img.h + 1, img.w, 1, w2 - rw / 2, h - i, rw, 1);
 	}
+
+	if(img.h)
+		return true;
 }

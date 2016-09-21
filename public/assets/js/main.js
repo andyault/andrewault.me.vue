@@ -128,16 +128,18 @@ let background = {
 	},
 
 	draw() {
+		let lastCall = false;
+
 		if(util.getScroll() < background.canvas.offsetHeight) {
 			let context = util.getContext(background.canvas, background.BG.context);
 
 			if(context)
-				background.BG.draw(context);
+				lastCall = background.BG.draw(context);
 		}
 
 		//only draw if we're on the same background and we're not paused
 		if(background.curBackground == background.oldBackground)
-			if(!background.paused)
+			if(!background.paused && !lastCall)
 				requestAnimationFrame(background.draw);
 	},
 
@@ -304,7 +306,7 @@ let background = {
 		}
 
 		//woops I forgot to make it async
-		req.open('GET', '/assets/js5/backgrounds/' + num + '.js', true);
+		req.open('GET', '/assets/js/backgrounds/' + num + '.js', true);
 		req.send();
 	}
 }
@@ -802,8 +804,8 @@ let app = new Vue({
 		});
 
 		//init background
-		background.setBG(Math.floor(Math.random() * background.numBackgrounds), function() {
-		//background.setBG(3, function() {
+		//background.setBG(Math.floor(Math.random() * background.numBackgrounds), function() {
+		background.setBG(3, function() {
 			app.isReady = true;
 		});
 	}
