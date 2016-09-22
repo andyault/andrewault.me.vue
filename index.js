@@ -42,7 +42,8 @@ let scrapeFiles = function() {
 
 					projects[cat][dir] = {
 						t: info.title,
-						d: info.desc
+						d: info.desc,
+						w: info.web
 					}
 
 					//hacky ass way to avoid using deprecated fs.existsSync
@@ -61,7 +62,7 @@ let scrapeFiles = function() {
 app.use(express.static(__dirname + '/public', {index: false}));
 
 //babel polyfill
-app.use('/babel-polyfill', express.static(__dirname + '/node_modules/babel-polyfill/'));
+app.use('/babel-polyfill', express.static(__dirname + '/node_modules/babel-polyfill'));
 
 //json for stuff
 app.get('/info', function(req, res) {
@@ -124,6 +125,7 @@ app.get('/:cat?/:project?/:file?', function(req, res, next) {
 			let cat = projects[req.params.cat];
 
 			//make sure it exists
+			//but it could also be a web project
 			if(!cat) return next();
 
 			if(req.params.project) {
@@ -143,9 +145,43 @@ app.get('/:cat?/:project?/:file?', function(req, res, next) {
 	res.sendFile(__dirname + '/public/home.html');
 });
 
+//web projects
+app.get('/:project*', function(req, res, next) {
+	let projects = scrapeFiles();
+
+	let path;
+
+	for(let catk in projects) {
+		let cat = projects[catk];
+
+		for(let dir in cat) {
+			let project = cat[dir];
+
+			if(project.w && req.params.project == dir) {
+				path = catk + '/' + dir + '/project';
+
+				break;
+			}
+		}
+
+		if(path) break;
+	}
+
+	if(path) {
+		req.url = req.url.substr(req.params.project.length + 2);
+
+		if(!req.url.length)
+			req.url = '/';
+
+		express.static(__dirname + '/public/work/' + path).apply(this, arguments);
+	} else {
+		next();
+	}
+});
+
 //404
 app.get('*', function(req, res) {
-	res.status(404).type('html').end('404');
+	res.status(404).type('html').end('404 - "' + req.url + '" not found');
 });
 
 //start it up

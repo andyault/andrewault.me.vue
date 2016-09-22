@@ -1,4 +1,5 @@
 {
 	"title": 	"ThreeJS Portfolio",
-	"desc": 	"An idea for a possible portfolio redesign, still in the works. Made with pure javascript using ThreeJS, this is an interactive, responsive, 3D flip book."
+	"desc": 	"An idea for a possible portfolio redesign, still in the works. Made with pure javascript using ThreeJS, this is an interactive, responsive, 3D flip book.",
+	"web": 		true
 }

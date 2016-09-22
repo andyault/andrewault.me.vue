@@ -1,4 +1,5 @@
 {
 	"title": 	"TBOI Quick Reference",
-	"desc": 	"A quick-reference guide for The Binding of Isaac: Rebirth. Made as an alternative to the platinumgod.co.uk website, but never finished due to data mining stuff. More early experience with angular.js."
+	"desc": 	"A quick-reference guide for The Binding of Isaac: Rebirth. Made as an alternative to the platinumgod.co.uk website, but never finished due to data mining stuff. More early experience with angular.js.",
+	"web": 		true
 }
