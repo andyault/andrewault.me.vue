@@ -1,0 +1,100 @@
+<!doctype html>
+<html ng-app="mainApp">
+	<head>
+		<meta charset="utf-8">
+		
+		<script src="assets/js/angular.min.js"></script>
+		
+		<script src="assets/js/main.js"></script>
+
+		<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+		<link href='http://fonts.googleapis.com/css?family=Montserrat:700' rel='stylesheet' type='text/css'>
+
+		<link rel="stylesheet" href="assets/css/style.css">
+		
+		<title>Isaac Item Reference</title>
+		<meta name="description" content="The Binding of Isaac: Rebirth item cheat sheet">
+	</head>
+
+	<body>		
+		<main>
+			<div id="header">
+				<h1>TBOI: Rebirth Items</h1>
+				
+				<input type="text" id="search" ng-model="filter" ng-change="updateSearch();" placeholder="Search...">
+			</div>
+			
+			<nav>
+				<a ng-repeat="tab in tabs" ng-class="isTab(tab[0])" ng-click="setTab(tab[0])" ng-bind="tab[0]"></a>
+			</nav>
+			
+			<ul id="grid">
+				<li class="px" ng-repeat="item in tabs[getTab()][1] track by $index" id="{{$index}}" style="{{item.style}}" grid-item ng-bind="item.name"></li>
+			</ul>
+			
+			<div id="inspect">
+				<div id="pre" ng-hide="curItem">
+					<p>Hover or click on an item to see its info.</p>
+				</div>
+				
+				<span ng-show="curItem">
+					<div id="big" class="px"></div>
+					
+					<div id="left">
+						<h2 ng-bind="curItem.name"></h2>
+						<h3 ng-bind="curItem.desc"></h3>
+						
+						<p ng-bind="curItem.effect"></p>
+					</div>
+					
+					<div id="right">
+						<table class="info">
+							<tr>
+								<td>type</td>
+								<td ng-bind="curItem.type" ng-class="color(curItem.type)"></td>
+							</tr>
+							<tr>
+								<td>special</td>
+								<td ng-bind="curItem.special" ng-class="color(curItem.special)"></td>
+							</tr>
+							<tr>
+								<td>pools</td>
+								<td ng-bind="curItem.pool"></td>
+							</tr>
+							<tr>
+								<td>unlock by</td>
+								<td ng-bind="curItem.prereq" ng-class="color(curItem.prereq)"></td>
+							</tr>
+						</table>
+						
+						<table class="stats">
+							<tr>
+								<td>Health</td>
+								<td>Damage</td>
+								<td>Tears</td>
+								<td>Range</td>
+								<td>S. Spd</td>
+								<td>Speed</td>
+								<td>Luck</td>
+								<td>Coins</td>
+								<td>Bombs</td>
+							</tr>
+							
+							<tr>
+								<td ng-class="color(curItem.health)">{{strip(curItem.health)}}</td>
+								<td ng-class="color(curItem.damage)">{{strip(curItem.damage)}}</td>
+								<td ng-class="color(curItem.tears)">{{strip(curItem.tears)}}</td>
+								<td ng-class="color(curItem.range)">{{strip(curItem.range)}}</td>
+								<td ng-class="color(curItem.shotspeed)">{{strip(curItem.shotspeed)}}</td>
+								<td ng-class="color(curItem.speed)">{{strip(curItem.speed)}}</td>
+								<td ng-class="color(curItem.luck)">{{strip(curItem.luck)}}</td>
+								<td ng-class="{green:curItem.coins}">{{curItem.coins}}</td>
+								<td ng-class="{green:curItem.bombs}">{{curItem.bombs}}</td>
+							</tr>
+						</table>
+					</div>
+				</span>
+			</div>
+		</main>
+	</body>
+</html>
