@@ -210,7 +210,7 @@
 			}
 
 			time.onkeypress = function(e) {
-				let code = e.keyCode || e.which;
+				var code = e.keyCode || e.which;
 
 				//console.log(code);
 
@@ -222,7 +222,7 @@
 					!(e.metaKey || e.ctrlKey)) { 	//keyboard shortcuts
 													//todo - add home/end/pageup/pagedn
 
-					let char = String.fromCharCode(code);
+					var char = String.fromCharCode(code);
 
 					if(!/[0-9:.]/.test(char)) {
 						e.returnValue = false;
