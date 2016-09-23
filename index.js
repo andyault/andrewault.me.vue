@@ -170,13 +170,29 @@ app.get('/:project*', function(req, res, next) {
 	if(path) {
 		req.url = req.url.substr(req.params.project.length + 2);
 
+		let index;
+
+		//if it doesn't end with an extension
+		if(!/[^\/]+\..+$/.test(req.url)) { 
+			//get the name of what the file would be 
+			let match = req.url.match(/([^\/]+)\/?$/);
+
+			//should always be true hopfully
+			if(match) {
+				index = match[1] + '.html';
+
+				//don't try to get file/file.html, just /file.html
+				req.url = req.url.substr(0, req.url.length - match[0].length);
+			}
+		}
+
+		//should never be true I think
 		if(!req.url.length)
 			req.url = '/';
 
-		express.static(__dirname + '/public/work/' + path).apply(this, arguments);
-	} else {
+		express.static(__dirname + '/public/work/' + path, {index}).apply(this, arguments);
+	} else
 		next();
-	}
 });
 
 //404
