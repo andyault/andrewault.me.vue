@@ -805,7 +805,7 @@ let app = new Vue({
 
 		//init background
 		//background.setBG(Math.floor(Math.random() * background.numBackgrounds), function() {
-		background.setBG(3, function() {
+		background.setBG(5, function() {
 			app.isReady = true;
 		});
 	}
