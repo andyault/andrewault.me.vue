@@ -106,209 +106,245 @@ let util = {
 }
 
 //background stuff
-let background = {
-	style: 			document.createElement('style'),
-	paused: 		false,
-	numBackgrounds: 3,
-	curBackground: 	-1,
-	oldBackground: 	-1,
-	dependencies: 	{},
+let background;
 
-	//default to black on white
-	BG: {
-		col: {
-			fg: 	'#000',
-			acc: 	'#F00',
-			bg: {
-				hue: 0,
-				sat: 0,
-				val: 97
+{
+	background = {
+		style: 			document.createElement('style'),
+		paused: 		false,
+		numBackgrounds: 4,
+		curBackground: 	-1,
+		oldBackground: 	-1,
+		dependencies: 	{},
+
+		//default to black on white
+		BG: {
+			col: {
+				fg: 	'#000',
+				acc: 	'#F00',
+				bg: {
+					hue: 0,
+					sat: 0,
+					val: 97
+				}
 			}
-		}
-	},
+		},
 
-	draw() {
-		let lastCall = false;
+		think() {
+			if(background.BG.think || background.BG.draw) {
+				let lastCall = false;
+				let canvas = background.canvas;
 
-		if(util.getScroll() < background.canvas.offsetHeight) {
-			let context = util.getContext(background.canvas, background.BG.context);
+				//call think but let the bg know if it's paused
+				let forceDraw = background.BG.think(canvas, background.paused || lastCall);
 
-			if(context)
-				lastCall = background.BG.draw(context);
-		}
+				if(	util.getScroll() < canvas.offsetHeight && 				//if the canvas is in view
+					background.curBackground == background.oldBackground && //make sure we're on the same background
+					forceDraw || (											//think has the option to force us to draw
+						!background.paused && 								//and that we're not paused 
+						!lastCall 											//and that we haven't returned true
+					)
+				) {
+					let context = util.getContext(canvas, background.BG.context);
 
-		//only draw if we're on the same background and we're not paused
-		if(background.curBackground == background.oldBackground)
-			if(!background.paused && !lastCall)
-				requestAnimationFrame(background.draw);
-	},
-
-	setBG(num, cb) {
-		this.curBackground = num;
-
-		requestAnimationFrame(function() {
-			background.oldBackground = background.curBackground;
-
-			background.load(background.curBackground, cb);
-		})
-	},
-
-
-	load(num, cb) {
-		let req = new XMLHttpRequest();
-
-		req.onload = function(e) {
-			let BG = background.BG;
-
-			//aaaa
-			eval(req.response);
-
-			//convenience stuff
-			let halfStr = `hsl(${BG.col.bg.hue}, ${BG.col.bg.sat}%, `;
-			BG.col.bg.str = halfStr + BG.col.bg.val + '%)';
-
-			//change page colors
-			background.css = `
-				body {
-					color: ${BG.col.fg};
-					background: ${BG.col.bg.str};
+					if(context)	//make sure we got our context
+						lastCall = background.BG.draw(context);
 				}
+			}
 
-				.underline {
-					border-color: ${BG.col.acc};
-				}
+			//always think
+			requestAnimationFrame(background.think);
+		},
 
-				header {
-					background: ${BG.col.fg};
-				}
+		setBG(num, cb) {
+			this.curBackground = num;
 
-				header a {
-					color: ${BG.col.bg.str};
-				}
+			requestAnimationFrame(function() {
+				background.oldBackground = background.curBackground;
 
-				header a:hover, header a.active {
-					color: ${BG.col.acc};
-				}
+				background.load(background.curBackground, cb);
+			})
+		},
 
-				#pages li {
-					background: ${BG.col.bg.str};
-				}
+		load(num, cb) {
+			let req = new XMLHttpRequest();
 
-				#pages li:nth-of-type(2n) {
-					background: ${halfStr}${BG.col.bg.val + 3}%);
-				}
+			req.onload = function(e) {
+				let BG = background.BG;
 
-				#landing {
-					color: ${BG.col.fg};
-				}
+				//aaaa
+				eval(req.response);
 
-				#landing #splash {
-					background: ${BG.col.fg};
-					color: ${BG.col.bg.str};
-				}
+				//convenience stuff
+				let halfStr = `hsl(${BG.col.bg.hue}, ${BG.col.bg.sat}%, `;
+				BG.col.bg.str = halfStr + BG.col.bg.val + '%)';
 
-				#landing #background {
-					background: ${BG.col.bg.str};
-				}
+				//change page colors
+				background.css = `
+					body {
+						color: ${BG.col.fg};
+						background: ${BG.col.bg.str};
+					}
 
-				#contact #response {
-					background: ${BG.col.acc};
-				}
+					.underline {
+						border-color: ${BG.col.acc};
+					}
 
-				#contact a {
-					color: ${BG.col.acc};
-				}
+					header {
+						background: ${BG.col.fg};
+					}
 
-				#contact a:hover {
-					color: ${BG.col.fg};
-				}
+					header a {
+						color: ${BG.col.bg.str};
+					}
 
-				#contact #submit {
-					background: ${BG.col.fg};
-					color: ${BG.col.bg.str};
-				}
+					header a:hover, header a.active {
+						color: ${BG.col.acc};
+					}
 
-				#contact #submit:hover {
-					background: ${BG.col.acc};
-					color: ${BG.col.fg};
-				}
+					#pages li {
+						background: ${BG.col.bg.str};
+					}
 
-				#arrow {
-					border-bottom-color: ${BG.col.fg} !important;
-				}
+					#pages li:nth-of-type(2n) {
+						background: ${halfStr}${BG.col.bg.val + 3}%);
+					}
 
-				#wrapper {
-					background: ${BG.col.fg};
-					color: ${BG.col.bg.str};
-				}
-			`;
+					#landing {
+						color: ${BG.col.fg};
+					}
 
-			//done with BG
-			background.BG = BG;
-			BG = null;
+					#landing #splash {
+						background: ${BG.col.fg};
+						color: ${BG.col.bg.str};
+					}
 
-			//put styles on the style element
-			//how supported is this?
-			background.style.textContent = background.css;
+					#landing #background {
+						background: ${BG.col.bg.str};
+					}
 
-			document.getElementsByTagName('head')[0].appendChild(background.style);
+					#contact #response {
+						background: ${BG.col.acc};
+					}
 
-			//init
-			let dependencies = [];
+					#contact a {
+						color: ${BG.col.acc};
+					}
 
-			//loading dependencies
-			if(background.BG.dependencies && background.BG.dependencies.length) {
-				for(let i = 0; i < background.BG.dependencies.length; i++) {
-					let src = background.BG.dependencies[i];
+					#contact a:hover {
+						color: ${BG.col.fg};
+					}
 
-					//only load it if we haven't yet
-					if(!background.dependencies[src]) {
-						dependencies[i] = new Promise(function(resolve, reject) {
-							let req = new XMLHttpRequest();
+					#contact #submit {
+						background: ${BG.col.fg};
+						color: ${BG.col.bg.str};
+					}
 
-							req.onload = function(e) {
-								//not that bad now
-								let script = document.createElement('script');
-								script.text = req.response;
+					#contact #submit:hover {
+						background: ${BG.col.acc};
+						color: ${BG.col.fg};
+					}
 
-								document.body.appendChild(script);
+					#arrow {
+						border-bottom-color: ${BG.col.fg} !important;
+					}
 
-								//only load once, conflicts aren't possible
-								background.dependencies[src] = true;
+					#wrapper {
+						background: ${BG.col.fg};
+						color: ${BG.col.bg.str};
+					}
+				`;
 
-								resolve();
-							}
+				//done with BG
+				background.BG = BG;
+				BG = null;
 
-							req.open('GET', '/assets/js/lib/' + src, true);
+				//put styles on the style element
+				//how supported is this?
+				background.style.textContent = background.css;
 
-							//if we have a previous file, don't load this one until that one's loaded
-							if(dependencies[i - 1])
-								dependencies[i - 1].then(function() {
+				document.getElementsByTagName('head')[0].appendChild(background.style);
+
+				//init
+				let dependencies = [];
+
+				//loading dependencies
+				if(background.BG.dependencies && background.BG.dependencies.length) {
+					for(let i = 0; i < background.BG.dependencies.length; i++) {
+						let src = background.BG.dependencies[i];
+
+						//only load it if we haven't yet
+						if(!background.dependencies[src]) {
+							dependencies[i] = new Promise(function(resolve, reject) {
+								let req = new XMLHttpRequest();
+
+								req.onload = function(e) {
+									//not that bad now
+									let script = document.createElement('script');
+									script.text = req.response;
+
+									document.body.appendChild(script);
+
+									//only load once, conflicts aren't possible
+									background.dependencies[src] = true;
+
+									resolve();
+								}
+
+								req.open('GET', '/assets/js/lib/' + src, true);
+
+								//if we have a previous file, don't load this one until that one's loaded
+								if(dependencies[i - 1])
+									dependencies[i - 1].then(function() {
+										req.send();
+									});
+								else
 									req.send();
-								});
-							else
-								req.send();
-						});
+							});
+						}
 					}
 				}
+
+				Promise.all(dependencies).then(function() {
+					//all files loaded
+					background.BG.init(background.canvas, util.getContext(background.canvas, background.BG.context));
+
+					//start drawing
+					//background.think();
+
+					//done :)
+					if(cb) cb();
+				});
 			}
 
-			Promise.all(dependencies).then(function() {
-				//all files loaded
-				background.BG.init(background.canvas, util.getContext(background.canvas, background.BG.context));
-
-				//start drawing
-				background.draw();
-
-				//done :)
-				if(cb) cb();
-			});
+			//woops I forgot to make it async
+			req.open('GET', '/assets/js/backgrounds/' + num + '.js', true);
+			req.send();
 		}
-
-		//woops I forgot to make it async
-		req.open('GET', '/assets/js/backgrounds/' + num + '.js', true);
-		req.send();
 	}
+
+	//mouse events
+	for(let name of ['onMouseMove', 'onMouseDown', 'onMouseUp'])
+		((name) => {
+			background[name] = (evt) => {
+				let m = evt || window.event;
+
+				let mx = m.clientX;
+				let my = m.clientY;
+
+				let canvas = background.canvas;
+
+				let rect = canvas.getBoundingClientRect();
+
+				my -= rect.y;
+
+				if(background.BG[name])
+					background.BG[name](canvas, mx, my);
+			}
+		})(name);
+
+	//*drake voice* start it
+	background.think();
 }
 
 //smooth scrolling stuff
@@ -427,14 +463,9 @@ let app = new Vue({
 	},
 
 	methods: {
-		pauseBG() {
-			background.paused = true;
-		},
+		pauseBG() { background.paused = true; },
 
-		resumeBG() {
-			background.paused = false;
-			background.draw();
-		},
+		resumeBG() { background.paused = false; },
 
 		prevBG() {
 			background.setBG((background.curBackground == 0) ? (background.numBackgrounds - 1) : (background.curBackground - 1));
@@ -803,9 +834,12 @@ let app = new Vue({
 			util.setPath(path);
 		});
 
-		//init background
+		//background stuff
+		for(let name of ['onMouseMove', 'onMouseDown', 'onMouseUp'])
+			background.canvas[name.toLowerCase()] = background[name];
+
 		//background.setBG(Math.floor(Math.random() * background.numBackgrounds), function() {
-		background.setBG(5, function() {
+		background.setBG(0, function() {
 			app.isReady = true;
 		});
 	}

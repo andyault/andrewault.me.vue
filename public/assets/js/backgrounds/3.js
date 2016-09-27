@@ -1,4 +1,4 @@
-//pseudo 3d mode7
+//isometric illusion wave thing
 
 BG.col = {
 	fg: 	'#333',
@@ -10,88 +10,87 @@ BG.col = {
 	}
 }
 
-//weird pseudo global
 let scene = {
-	textures: 	[
-		'm7_map.png'
-	],
-	images: 	[],
-
-	numZSegments: 16
+	tileSize: 	48
 }
 
 BG.init = function(canvas) {
 	this.onResize(canvas);
-
-	this.initTextures();
-}
-
-BG.initTextures = function() {
-	for(let i = 0; i < scene.textures.length; i++) {
-		scene.images[i] = {}
-		let img = scene.images[i].img = new Image();
-
-		img.src = 'assets/img/' + scene.textures[i];
-
-		img.onload = function() {
-			scene.images[i].w = img.width;
-			scene.images[i].h = img.height;
-		}
-	}
 }
 
 BG.onResize = function(canvas) {
-	canvas.width 	= canvas.offsetWidth;
-	canvas.height 	= canvas.offsetHeight;
-}
-
-BG.think = function(w, h) {
+	canvas.width = canvas.offsetWidth;
+	canvas.height = canvas.offsetHeight;
 }
 
 BG.draw = function(ctx) {
-	//round our grid size up by 8
 	let w = ctx.canvas.width;
 	let h = ctx.canvas.height;
 
-	let w2 = Math.ceil(w / 2);
-	let h2 = Math.ceil(h / 2);
+	let ts = scene.tileSize;
+	let ts2 = scene.tileSize / 2;
+	let ts4 = scene.tileSize / 4;
+	let th = scene.tileSize * 7 / 8;
 
-	let img = scene.images[0];
+	let numRows = Math.ceil(h / th);
+	let numCols = Math.ceil(w / ts);
 
-	//ctx.fillStyle = '#aaa';
-	//ctx.fillRect(0, h2, w, h2);
+	for(let j = -(numRows / 2); j < numRows * 1.5; j++) {
+		let y = j * th;
 
-	for(let i = 0; i < h2; i++) {
-		let slice 	= (1 / h2);
-		let frac 	= i * slice;
+		for(let i = 0; i < numCols + 1; i++) {
+			//alternating rows
+			let ix = (j % 2 == 0) ? i : i + 0.5;
 
-		/*
-		//slice
-		let sx = 0;
-		let sy = frac * img.h / 2;
+			let x = ix * ts;
 
-		let sw = img.w;
-		let sh = 1;
+			//distance to center
+			let d = Math.floor(Math.sqrt(
+				Math.pow(ix - Math.floor(numCols / 2), 2) + 
+				Math.pow(j - Math.floor(numRows / 2), 2)
+			) + 0.5);
 
-		//drawn
-		let dx = w / 2 - rw / 2;
-		let dy = h2 + i;
+			let z = Math.cos(
+				Date.now() / 500 + 
+				d / 3
+			) * ((numCols / 2) - d) * 10;
 
-		let dw = rw;
-		let dh = 1;
+			//top
+			ctx.beginPath();
+			ctx.fillStyle = 'hsl(' + (d / 36) * 360 + ', 60%, 60%)';
+			ctx.moveTo(x - ts2, y 			+ z);
+			ctx.lineTo(x, 		y - ts4 	+ z);
+			ctx.lineTo(x + ts2, y 			+ z);
+			ctx.lineTo(x, 		y + ts4 	+ z);
+			ctx.fill();
 
-		ctx.drawImage(img.img, sx, sy, sw, sh, dx, dy, dw, dh); */
+			//left
+			ctx.beginPath();
+			ctx.fillStyle = '#aaa';
+			ctx.moveTo(x - ts2, y 			+ z);
+			ctx.lineTo(x, 		y + ts4 	+ z);
+			ctx.lineTo(x, 		h);
+			ctx.lineTo(x - ts2, h);
+			ctx.fill();
 
-		let z = Math.pow(2, frac * 10);
-		let zfrac = z / Math.pow(2, 10);
+			//right
+			ctx.beginPath();
+			ctx.fillStyle = '#ccc';
+			ctx.moveTo(x, 		y + ts4 	+ z);
+			ctx.lineTo(x + ts2, y 			+ z);
+			ctx.lineTo(x + ts2, h);
+			ctx.lineTo(x, 		h);
+			ctx.fill();
 
-		let rw = w + w2 * zfrac;
-
-		//ctx.fillStyle = (Math.floor(zfrac * 10) % 2 == 0) ? '#fff' : '#ccc';
-		//ctx.fillRect(0, h - i, w, 1);
-		ctx.drawImage(img.img, 0, frac * img.h + 1, img.w, 1, w2 - rw / 2, h - i, rw, 1);
+			//debug
+			/* ctx.fillStyle = '#000';
+			ctx.font = 'sans-serif';
+			ctx.textAlign = 'center';
+			ctx.fillText(i + ', ' + j, x, y + z - 4);
+			ctx.fillText(Math.floor(d * 100) / 100, x, y + z + 6); */
+			
+		}
 	}
 
-	if(img.h)
-		return true;
+	//return true;
 }
