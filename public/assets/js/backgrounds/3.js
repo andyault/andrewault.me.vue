@@ -11,7 +11,13 @@ BG.col = {
 }
 
 let scene = {
-	tileSize: 	48
+	tileSize: 	48,
+	speed: 		-1 / 500,
+	size: 		3 / 4,
+	height: 	64,
+
+	time: 		0,
+	lastTime: 	0
 }
 
 BG.init = function(canvas) {
@@ -20,44 +26,64 @@ BG.init = function(canvas) {
 
 BG.onResize = function(canvas) {
 	canvas.width = canvas.offsetWidth;
-	canvas.height = canvas.offsetHeight;
+	canvas.height = canvas.offsetHeight;}
+
+BG.think = function(canvas, paused) {
+	let now = Date.now();
+
+	if(!paused)
+		scene.time += now - scene.lastTime;
+
+	scene.lastTime = now;
+
+	return true;
 }
 
 BG.draw = function(ctx) {
 	let w = ctx.canvas.width;
 	let h = ctx.canvas.height;
 
-	let ts = scene.tileSize;
+	let ts 	= scene.tileSize;
 	let ts2 = scene.tileSize / 2;
 	let ts4 = scene.tileSize / 4;
-	let th = scene.tileSize * 7 / 8;
+	let th 	= scene.tileSize * 7 / 8;
 
-	let numRows = Math.ceil(h / th);
-	let numCols = Math.ceil(w / ts);
+	let numCols = Math.ceil((w / ts) / 2) * 2;
+	let numRows = Math.ceil((h / th) / 2) * 2;
 
-	for(let j = -(numRows / 2); j < numRows * 1.5; j++) {
-		let y = j * th;
+	//start negative so that the center tile is always center screen
+	let nx = Math.ceil((w - numCols * ts) / 2);
+	let ny = Math.ceil((h - numRows * th) / 2);
+
+	for(let j = -2; j < numRows + 1; j++) {
+		let y = ny + j * th;
 
 		for(let i = 0; i < numCols + 1; i++) {
-			//alternating rows
-			let ix = (j % 2 == 0) ? i : i + 0.5;
+			let x = nx + i * ts;
 
-			let x = ix * ts;
+			//draw odd rows off center
+			//this is so trial and error it's not even funny
+			if(j % 2 != (numRows / 2) % 2)
+				x += ts2;
 
 			//distance to center
 			let d = Math.floor(Math.sqrt(
-				Math.pow(ix - Math.floor(numCols / 2), 2) + 
-				Math.pow(j - Math.floor(numRows / 2), 2)
+				Math.pow((x / ts) - ((w / ts) / 2), 2) +
+				Math.pow((y / th) - ((h / th) / 2), 2)
 			) + 0.5);
 
+			//'z' - '3d' height
 			let z = Math.cos(
-				Date.now() / 500 + 
-				d / 3
-			) * ((numCols / 2) - d) * 10;
+				scene.time * scene.speed +
+				d * scene.size
+			) * scene.height;
+
+			//high in the center, nothing by the outsides
+			z *= 1.1 - (d / numCols * 2);
 
 			//top
 			ctx.beginPath();
-			ctx.fillStyle = 'hsl(' + (d / 36) * 360 + ', 60%, 60%)';
+			ctx.fillStyle = 'hsl(' + (d / numCols * 2) * 360 + ', 60%, 60%)';
 			ctx.moveTo(x - ts2, y 			+ z);
 			ctx.lineTo(x, 		y - ts4 	+ z);
 			ctx.lineTo(x + ts2, y 			+ z);
@@ -81,16 +107,6 @@ BG.draw = function(ctx) {
 			ctx.lineTo(x + ts2, h);
 			ctx.lineTo(x, 		h);
 			ctx.fill();
-
-			//debug
-			/* ctx.fillStyle = '#000';
-			ctx.font = 'sans-serif';
-			ctx.textAlign = 'center';
-			ctx.fillText(i + ', ' + j, x, y + z - 4);
-			ctx.fillText(Math.floor(d * 100) / 100, x, y + z + 6); */
-			
 		}
 	}
-
-	//return true;
 }
