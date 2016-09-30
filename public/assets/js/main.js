@@ -117,38 +117,29 @@ let background;
 		oldBackground: 	-1,
 		dependencies: 	{},
 
-		//default to black on white
-		BG: {
-			col: {
-				fg: 	'#000',
-				acc: 	'#F00',
-				bg: {
-					hue: 0,
-					sat: 0,
-					val: 97
-				}
-			}
-		},
-
 		think() {
 			if(background.BG.think || background.BG.draw) {
 				let lastCall = false;
 				let canvas = background.canvas;
 
-				//call think but let the bg know if it's paused
-				let forceDraw = background.BG.think(canvas, background.paused || lastCall);
-
 				if(	util.getScroll() < canvas.offsetHeight && 				//if the canvas is in view
-					background.curBackground == background.oldBackground && //make sure we're on the same background
-					forceDraw || (											//think has the option to force us to draw
+					background.curBackground == background.oldBackground) { //make sure we're on the same background
+
+					//call think but let the bg know if it's paused
+					let forceDraw = false;
+
+					if(background.BG.think)
+						forceDraw = background.BG.think(canvas, background.paused || lastCall);
+
+					if(forceDraw || (										//think has the option to force us to draw
 						!background.paused && 								//and that we're not paused 
 						!lastCall 											//and that we haven't returned true
-					)
-				) {
-					let context = util.getContext(canvas, background.BG.context);
+					)) {
+						let context = util.getContext(canvas, background.BG.context);
 
-					if(context)	//make sure we got our context
-						lastCall = background.BG.draw(context);
+						if(context)	//make sure we got our context
+							lastCall = background.BG.draw(context);
+					}
 				}
 			}
 
@@ -170,7 +161,8 @@ let background;
 			let req = new XMLHttpRequest();
 
 			req.onload = function(e) {
-				let BG = background.BG;
+				//bad
+				let BG = JSON.parse(JSON.stringify(background.defaultBG));
 
 				//aaaa
 				eval(req.response);
@@ -323,6 +315,22 @@ let background;
 		}
 	}
 
+	//default to black on white
+	background.defaultBG = {
+		col: {
+			fg: 	'#000',
+			acc: 	'#F00',
+			bg: {
+				hue: 0,
+				sat: 0,
+				val: 97
+			}
+		}
+	}
+
+	//bad
+	background.BG = JSON.parse(JSON.stringify(background.defaultBG));
+
 	//mouse events
 	for(let name of ['onMouseMove', 'onMouseDown', 'onMouseUp'])
 		((name) => {
@@ -463,9 +471,11 @@ let app = new Vue({
 	},
 
 	methods: {
-		pauseBG() { background.paused = true; },
+		toggleBG(elem) {
+			background.paused = !background.paused;
 
-		resumeBG() { background.paused = false; },
+			elem.classList.toggle('play', background.paused);
+		},
 
 		prevBG() {
 			background.setBG((background.curBackground == 0) ? (background.numBackgrounds - 1) : (background.curBackground - 1));
@@ -839,7 +849,7 @@ let app = new Vue({
 			background.canvas[name.toLowerCase()] = background[name];
 
 		//background.setBG(Math.floor(Math.random() * background.numBackgrounds), function() {
-		background.setBG(0, function() {
+		background.setBG(3, function() {
 			app.isReady = true;
 		});
 	}

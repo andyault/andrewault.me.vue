@@ -10,15 +10,15 @@ BG.col = {
 	}
 }
 
-//weird pseudo global
-let ant = {
+let scene = {
 	cellSize: 	2,
-	thinkInt: 	0,
+	thinkInt: 	1 / 25,
 	drawAnt: 	true,
 
 	direction: 	1, //trbl
 	curPos: 	-1,
 
+	lastThink: 	0,
 	cells: 		{},
 	newCells: 	{},
 	states: 	[1, -1]
@@ -27,26 +27,26 @@ let ant = {
 BG.init = function(canvas) {
 	this.onResize(canvas);
 
-	let cw = Math.ceil(canvas.width / ant.cellSize);
-	let ch = Math.ceil(canvas.height / ant.cellSize);
+	let cw = Math.ceil(canvas.width / scene.cellSize);
+	let ch = Math.ceil(canvas.height / scene.cellSize);
 
 	let ctx = canvas.getContext('2d');
 
 	//translate to center
 	ctx.translate(
-		-(cw - (canvas.width / ant.cellSize)) / 2,
-		-(ch - (canvas.height / ant.cellSize)) / 2
+		-(cw - (canvas.width / scene.cellSize)) / 2,
+		-(ch - (canvas.height / scene.cellSize)) / 2
 	);
 
 	//random states
 	for(let i = 2; i < Math.floor(Math.random() * 8); i++)
-		ant.states[i] = Math.floor(Math.random() * 2) * 2 - 1;
+		scene.states[i] = Math.floor(Math.random() * 2) * 2 - 1;
 
 	//start the ant in the center
-	ant.curPos = cw * ch / 2;
-	if((ant.curPos % cw) == 0) ant.curPos += cw / 2;
+	scene.curPos = cw * ch / 2;
+	if((scene.curPos % cw) == 0) scene.curPos += cw / 2;
 
-	ant.curPos = Math.floor(ant.curPos);
+	scene.curPos = Math.floor(scene.curPos);
 }
 
 BG.onResize = function(canvas) {
@@ -54,105 +54,95 @@ BG.onResize = function(canvas) {
 	canvas.height 	= Math.ceil(canvas.offsetHeight / 6);
 }
 
-let lastThink = 0;
+BG.think = function(canvas, paused) {
+	if(!paused) {
+		if(Date.now() > scene.lastThink + scene.thinkInt) {
+			let cw = Math.ceil(canvas.width / scene.cellSize);
+			let ch = Math.ceil(canvas.height / scene.cellSize);
 
-BG.think = function(cw, ch) {
-	let curState = ant.cells[ant.curPos] || 0;
+			for(let i = 0; i < Math.ceil(1 / scene.thinkInt); i++) {
+				let curState = scene.cells[scene.curPos] || 0;
 
-	ant.cells[ant.curPos] = (++curState % ant.states.length);
+				scene.cells[scene.curPos] = (++curState % scene.states.length);
 
-	if(!ant.cells[ant.curPos]) ant.cells[ant.curPos] = undefined;
+				if(!scene.cells[scene.curPos]) scene.cells[scene.curPos] = undefined;
 
-	let nextCell;
+				let nextCell;
 
-	//see which way we're facing
-	switch(ant.direction) {
-		case 0:
-			nextCell = ant.curPos - cw;
-			break;
-		case 1:
-			nextCell = ant.curPos + 1;
-			break;
-		case 2:
-			nextCell = ant.curPos + cw;
-			break;
-		case 3:
-			nextCell = ant.curPos - 1;
-			break;
+				//see which way we're facing
+				switch(scene.direction) {
+					case 0:
+						nextCell = scene.curPos - cw;
+						break;
+					case 1:
+						nextCell = scene.curPos + 1;
+						break;
+					case 2:
+						nextCell = scene.curPos + cw;
+						break;
+					case 3:
+						nextCell = scene.curPos - 1;
+						break;
+				}
+
+				if(nextCell > cw * ch)
+					nextCell = nextCell % (cw * ch);
+
+				if(nextCell < 0)
+					nextCell = nextCell + cw * ch;
+
+				//move to our new cell
+				scene.curPos = nextCell;
+
+				//turn
+				scene.direction += scene.states[scene.cells[nextCell] || 0];
+
+				if(scene.direction > 3)
+					scene.direction = 0;
+				else if(scene.direction < 0)
+					scene.direction = 3;
+			}
+
+			//done :)
+			scene.lastThink = Date.now();
+		}
 	}
-
-	if(nextCell > cw * ch)
-		nextCell = nextCell % (cw * ch);
-
-	if(nextCell < 0)
-		nextCell = nextCell + cw * ch;
-
-	//move to our new cell
-	ant.curPos = nextCell;
-
-	//turn
-	ant.direction += ant.states[ant.cells[nextCell] || 0];
-
-	if(ant.direction > 3)
-		ant.direction = 0;
-	else if(ant.direction < 0)
-		ant.direction = 3;
-
-	//done :)
-	lastThink = Date.now();
 }
 
 BG.draw = function(ctx) {
-	//round our grid size up by 8
-	let cw 	= Math.ceil(ctx.canvas.width / ant.cellSize);
-	let ch 	= Math.ceil(ctx.canvas.height / ant.cellSize);
+	let w = ctx.canvas.width;
+	let h = ctx.canvas.height;
 
-	let w = cw * ant.cellSize;
-	let h = ch * ant.cellSize;
+	let cw 	= Math.ceil(w / scene.cellSize);
+	let ch 	= Math.ceil(h / scene.cellSize);
 
-	//cell logic
-	if(Date.now() > lastThink + ant.thinkInt) {
-		//think
-		for(let i = 0; i < 25; i++) 
-			this.think(cw, ch);
+	//clear
+	ctx.clearRect(0, 0, w, h);
 
-		//clear
-		ctx.clearRect(0, 0, w, h);
+	//draw cells
+	for(let i = 0; i < cw * ch; i++) {
+		let cell = scene.cells[i];
 
-		//not sure if this does anything
-		ctx.imageSmoothingEnabled = 
-		ctx.mozImageSmoothingEnabled =
-		ctx.webkitImageSmoothingEnabled = false;
+		if(cell) {
+			let cx = i % cw;
+			let cy = Math.floor(i / cw);
 
-		//draw cells
-		for(let i = 0; i < cw * ch; i++) {
-			let cell = ant.cells[i];
+			let hue = cell * (360 / scene.states.length);
 
-			if(cell) {
-				let cx = i % cw;
-				let cy = Math.floor(i / cw);
+			ctx.fillStyle = 'hsl(' + hue + ', 60%, 60%)';
+			ctx.fillRect(cx * scene.cellSize, cy * scene.cellSize, 1, 1);
 
-				let hue = cell * (360 / ant.states.length);
-
-				ctx.fillStyle = 'hsl(' + hue + ', 60%, 60%)';
-				ctx.fillRect(cx * ant.cellSize, cy * ant.cellSize, 1, 1);
-
-				ctx.fillStyle = 'hsl(' + hue + ', 60%, 35%)';
-				ctx.fillRect(cx * ant.cellSize, cy * ant.cellSize + 1, 1, 1);
-			}
-		}
-
-		//draw ant
-		if(ant.drawAnt) {
-			let antx = ant.curPos % cw;
-			let anty = Math.floor(ant.curPos / cw);
-
-			ctx.fillStyle = this.col.acc;
-			ctx.fillRect(antx * ant.cellSize, anty * ant.cellSize, 1, 1);
+			ctx.fillStyle = 'hsl(' + hue + ', 60%, 35%)';
+			ctx.fillRect(cx * scene.cellSize, cy * scene.cellSize + 1, 1, 1);
 		}
 	}
 
-	//ctx.font = '4px sans-serif';
-	//ctx.fillStyle = '#fff';
-	//ctx.fillText(ant.states.map((a) => { return a < 0 ? 'L' : 'R' }).join(''), 0, 4);
+	//draw ant
+	if(scene.drawAnt) {
+		let antx = scene.curPos % cw;
+		let anty = Math.floor(scene.curPos / cw);
+
+		ctx.fillStyle = this.col.acc;
+		ctx.fillRect(antx * scene.cellSize, anty * scene.cellSize, 1, 1);
+	}
 }

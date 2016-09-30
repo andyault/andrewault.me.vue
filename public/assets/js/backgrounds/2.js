@@ -10,16 +10,16 @@ BG.col = {
 	}
 }
 
-//weird pseudo global
-let ant = {
-	thinkCalls: 10000,
+let scene = {
+	thinkInt: 	1 / 10000,
 	wasResized: false,
 
 	direction: 	1, //trbl
 	curPos: 	-1,
 
+	lastThink: 	0,
 	cells: 		{},
-	newCells: 	{},
+	oldCells: 	{},
 	states: 	[-1, 1, 1, -1]
 }
 
@@ -28,13 +28,13 @@ BG.init = function(canvas) {
 
 	//change states
 	for(let i = 0; i < 360; i++)
-		ant.states[i] = Math.floor(Math.random() * 2) * 2 - 1;
+		scene.states[i] = Math.floor(Math.random() * 2) * 2 - 1;
 
 	//start the ant in the center
-	ant.curPos = canvas.width * canvas.height / 2;
-	if((ant.curPos % canvas.width) == 0) ant.curPos += canvas.width / 2;
+	scene.curPos = canvas.width * canvas.height / 2;
+	if((scene.curPos % canvas.width) == 0) scene.curPos += canvas.width / 2;
 
-	ant.curPos = Math.floor(ant.curPos);
+	scene.curPos = Math.floor(scene.curPos);
 
 	//start with a state 1 background
 	let ctx = canvas.getContext('2d');
@@ -47,84 +47,79 @@ BG.onResize = function(canvas) {
 	canvas.width 	= canvas.offsetWidth / 6;
 	canvas.height 	= canvas.offsetHeight / 6;
 
-	ant.wasResized = true;
+	scene.wasResized = true;
 }
 
-BG.think = function(w, h) {
-	let curState = ant.cells[ant.curPos] || 0;
+BG.think = function(canvas, paused) {
+	if(!paused) {
+		if(Date.now() > scene.lastThink + scene.thinkInt) {
+			let w = canvas.width;
+			let h = canvas.height;
 
-	ant.cells[ant.curPos] = (++curState % ant.states.length);
+			for(let i = 0; i < w * h; i++)
+				scene.oldCells[i] = scene.cells[i];
 
-	if(!ant.cells[ant.curPos]) ant.cells[ant.curPos] = undefined;
+			for(let i = 0; i < Math.ceil(1 / scene.thinkInt); i++) {
+				let curState = scene.cells[scene.curPos] || 0;
 
-	let nextCell;
+				scene.cells[scene.curPos] = (++curState % scene.states.length);
 
-	//see which way we're facing
-	switch(ant.direction) {
-		case 0:
-			nextCell = ant.curPos - w;
-			break;
-		case 1:
-			nextCell = ant.curPos + 1;
-			break;
-		case 2:
-			nextCell = ant.curPos + w;
-			break;
-		case 3:
-			nextCell = ant.curPos - 1;
-			break;
+				if(!scene.cells[scene.curPos]) scene.cells[scene.curPos] = undefined;
+
+				let nextCell;
+
+				//see which way we're facing
+				switch(scene.direction) {
+					case 0:
+						nextCell = scene.curPos - w;
+						break;
+					case 1:
+						nextCell = scene.curPos + 1;
+						break;
+					case 2:
+						nextCell = scene.curPos + w;
+						break;
+					case 3:
+						nextCell = scene.curPos - 1;
+						break;
+				}
+
+				if(nextCell > w * h)
+					nextCell = nextCell % (w * h);
+
+				if(nextCell < 0)
+					nextCell = nextCell + w * h;
+
+				//move to our new cell
+				scene.curPos = nextCell;
+
+				//turn
+				scene.direction += scene.states[scene.cells[nextCell] || 0];
+
+				if(scene.direction > 3)
+					scene.direction = 0;
+				else if(scene.direction < 0)
+					scene.direction = 3;
+			}
+
+			scene.lastThink = Date.now();
+		}
 	}
-
-	if(nextCell > w * h)
-		nextCell = nextCell % (w * h);
-
-	if(nextCell < 0)
-		nextCell = nextCell + w * h;
-
-	//move to our new cell
-	ant.curPos = nextCell;
-
-	//turn
-	ant.direction += ant.states[ant.cells[nextCell] || 0];
-
-	if(ant.direction > 3)
-		ant.direction = 0;
-	else if(ant.direction < 0)
-		ant.direction = 3;
 }
 
 BG.draw = function(ctx) {
-	//round our grid size up by 8
 	let w = ctx.canvas.width;
 	let h = ctx.canvas.height;
 
-	//get a copy of our old cells
-	let oldCells = {};
-
-	if(!ant.wasResized) {
-		for(let i = 0; i < w * h; i++)
-			oldCells[i] = ant.cells[i];
-	} else
-		ant.wasResized = false;
-
-	//think
-	for(let i = 0; i < ant.thinkCalls; i++) 
-		this.think(w, h);
-
-	//not sure if this does anything
-	ctx.imageSmoothingEnabled = 
-	ctx.mozImageSmoothingEnabled =
-	ctx.webkitImageSmoothingEnabled = false;
-
 	//draw cells (but only if they've changed)
 	for(let i = 0; i < w * h; i++) {
-		let cell = ant.cells[i];
+		let cell = scene.cells[i];
 
-		if(cell != oldCells[i]) {
+		if(cell != scene.oldCells[i]) {
 			let cx = i % w;
 			let cy = Math.floor(i / w);
 
-			let hue = cell * (360 / ant.states.length);
+			let hue = cell * (360 / scene.states.length);
 
 			ctx.fillStyle = 'hsl(' + hue + ', 60%, 60%)';
 			ctx.fillRect(cx, cy, 1, 1);

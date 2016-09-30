@@ -48,8 +48,7 @@
 
 					<div id="controls">
 						<a id="prevbg" @click.prevent="prevBG()"></a>
-						<a id="pause" 	@click.prevent="pauseBG()"></a>
-						<a id="play" 	@click.prevent="resumeBG()"></a>
+						<a id="toggle" @click.prevent="toggleBG($event.target)"></a>
 						<a id="nextbg" @click.prevent="nextBG()"></a>
 					</div>
 				</li>

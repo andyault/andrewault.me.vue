@@ -1,6 +1,0 @@
-'use strict';//pseudo 3d mode7
-BG.col={fg:'#333',acc:'#FFB8F1',bg:{hue:0,sat:0,val:97}};//weird pseudo global
-var scene={textures:['m7_map.png'],images:[],numZSegments:16};BG.init=function(canvas){this.onResize(canvas);this.initTextures()};BG.initTextures=function(){var _loop=function _loop(i){scene.images[i]={};var img=scene.images[i].img=new Image;img.src='assets/img/'+scene.textures[i];img.onload=function(){scene.images[i].w=img.width;scene.images[i].h=img.height}};for(var i=0;i<scene.textures.length;i++){_loop(i)}};BG.onResize=function(canvas){canvas.width=canvas.offsetWidth;canvas.height=canvas.offsetHeight};BG.think=function(w,h){};BG.draw=function(ctx){//round our grid size up by 8
-var w=ctx.canvas.width;var h=ctx.canvas.height;var w2=Math.ceil(w/2);var h2=Math.ceil(h/2);var rw=w;var img=scene.images[0];for(var i=0;i<h2;i++){var slice=1/h2;var frac=i*slice;//slice
-var sx=0;var sy=frac*img.h/2;var sw=img.w;var sh=1;//drawn
-var dx=w/2-rw/2;var dy=h2+i;var dw=rw;var dh=1;ctx.drawImage(img.img,sx,sy,sw,sh,dx,dy,dw,dh);rw+=(h2-i)/h2*25}};
