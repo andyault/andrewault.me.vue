@@ -172,8 +172,11 @@ app.get('/:project*', function(req, res, next) {
 
 		req.url = req.url.substr(req.params.project.length + 2);
 
+<<<<<<< HEAD
 		console.log(req.url);
 
+=======
+>>>>>>> f0f37e52421b5729c68d7b83114f23220c94f348
 		let index;
 
 		//if it doesn't end with an extension
